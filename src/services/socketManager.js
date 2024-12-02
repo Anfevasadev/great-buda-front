@@ -13,7 +13,6 @@ export const initializeSocket = (setPlayersCount) => {
     }
     );
 
-
     return () => {
         socket.off('updatePlayers');
         socket.off('startGame');

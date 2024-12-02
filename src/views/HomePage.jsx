@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from './Header';
-import Footer from './Footer';
-import AuthModal from './AuthModal';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
+import AuthModal from '../components/AuthModal';
 import buddhaImg from '../assets/goldenBuddhaImg.png';
 import './HomePage.css';
 import { useAuth } from '../context/AuthContext';
