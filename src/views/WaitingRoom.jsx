@@ -10,14 +10,11 @@ function WaitingRoom() {
   const { token } = useAuth();
   const { roomID } = useParams();
   const { gameState, setGameState, joinGameRoom } = useGame();
-  console.log(gameState);
 
   useEffect(() => {
     if (token && roomID) {
       const cleanup = joinGameRoom();
       const effect = async () => {
-        console.log(roomID);
-        console.log(gameState);
         await setGameState(prev => ({ ...prev, gameId: roomID }));
         await socket.emit('joinRoom', { roomID, token });
       }

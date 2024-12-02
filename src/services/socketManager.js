@@ -16,16 +16,27 @@ export const initializeSocket = (setGameState) => {
         console.log('waitingTime', waitingTime);
         setGameState(prevState => ({ ...prevState, waitingTime }));
     });
+
     socket.on('closeRoom', () => {
         console.log('closeRoom');
         setGameState(prev => ({ ...prev, isRoomClosed: true }));
     });
 
-
+    socket.on('bingoCard', ({ playerId, bingoCard }) => {
+        setGameState(prevState => ({
+            ...prevState,
+            bingoCards: {
+                ...prevState.bingoCards,
+                [playerId]: bingoCard
+            }
+        }));
+    });
 
     return () => {
         socket.off('updatePlayers');
         socket.off('waitingTime');
-        // socket.disconnect();
+        socket.off('closeRoom');
+        socket.off('bingoCard');
+        socket.disconnect();
     };
 };
