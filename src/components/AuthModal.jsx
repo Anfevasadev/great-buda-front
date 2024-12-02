@@ -1,63 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import InputField from './InputField';
 import { validateForm } from '../utils/validation';
 import { useAuthService } from '../services/authService';
+import useForm from '../hooks/useForm';
 import './AuthModal.css';
 
 function AuthModal({ isOpen, onClose }) {
   const { handleRegister, handleLogin } = useAuthService();
   const [isLogin, setIsLogin] = useState(true);
-  const [formData, setFormData] = useState({
+  const [loading, setLoading] = useState(false);
+  const [serverErrors, setServerErrors] = useState([]);
+
+  const initialState = {
     name: '',
     username: '',
     age: '',
     email: '',
     password: '',
     confirmPassword: '',
-  });
-  const [errors, setErrors] = useState({});
-  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [serverErrors, setServerErrors] = useState([]);
-
-  useEffect(() => {
-    if (isFormSubmitted) {
-      setErrors(validateForm(formData, isLogin));
-    }
-  }, [formData, isLogin, isFormSubmitted]);
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsFormSubmitted(true);
-    const newErrors = validateForm(formData, isLogin);
-    setErrors(newErrors);
+  const {
+    formData,
+    setFormData,
+    errors,
+    isFormSubmitted,
+    setIsFormSubmitted,
+    handleInputChange,
+    handleSubmit,
+    setErrors
+  } = useForm(initialState, (data) => validateForm(data, isLogin));
 
-    if (Object.keys(newErrors).length === 0) {
-      setLoading(true);
-      setServerErrors([]);
-
-      try {
-        if (isLogin) {
-          await handleLogin(formData, onClose, setFormData);
-        } else {
-          await handleRegister(formData, onClose, setFormData);
-        }
-      } catch (error) {
-        if (error.response && error.response.data && error.response.data.error && error.response.data.error.errors) {
-          setServerErrors(error.response.data.error.errors.map(err => err.message || err.msg));
-        } else if (error.response?.data?.errors?.length > 0) {
-          setServerErrors(error.response.data.errors.map(err => err.message || err.msg));
-        } else {
-          setServerErrors(['Upss, algo salió mal, inténtalo más tarde']);
-        }
-      } finally {
-        setLoading(false);
+  const onSubmit = async () => {
+    setLoading(true);
+    setServerErrors([]);
+    try {
+      if (isLogin) {
+        await handleLogin(formData, onClose, setFormData);
+      } else {
+        await handleRegister(formData, onClose, setFormData);
       }
+    } catch (errorMessages) {
+      setServerErrors(errorMessages);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -68,7 +54,7 @@ function AuthModal({ isOpen, onClose }) {
       <div className="auth-modal__content">
         <button className="auth-modal__close" onClick={onClose} aria-label="Cerrar">×</button>
         <h2 className="auth-modal__title">{isLogin ? 'Iniciar sesión' : 'Registrarse'}</h2>
-        <form className="auth-modal__form" onSubmit={handleSubmit} noValidate>
+        <form className="auth-modal__form" onSubmit={(e) => handleSubmit(e, onSubmit)} noValidate>
           {!isLogin && (
             <>
               <InputField
