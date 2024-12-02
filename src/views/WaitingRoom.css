@@ -1,0 +1,18 @@
+.waiting-room {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: var(--color-background);
+  color: var(--color-text);
+}
+
+.waiting-room h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.waiting-room p {
+  font-size: 1.5rem;
+}
