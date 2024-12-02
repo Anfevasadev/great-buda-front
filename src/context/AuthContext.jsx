@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -11,9 +12,22 @@ export const AuthProvider = ({ children }) => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
-      // Aquí podrías hacer una llamada a la API para obtener los datos del usuario con el token
-      // setUser(userData);
-      setIsAuthenticated(true);
+      axios.get('/api/user', {
+        headers: {
+          Authorization: storedToken
+        }
+      })
+      .then(response => {
+        setUser(response.data);
+        setIsAuthenticated(true);
+      })
+      .catch(error => {
+        console.error('Error fetching user data:', error);
+        setIsAuthenticated(false);
+        setUser(null);
+        setToken(null);
+        localStorage.removeItem('token');
+      });
     }
   }, []);
 

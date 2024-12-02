@@ -1,26 +1,18 @@
-import { useState } from 'react';
+import React from 'react';
 import './App.css';
 import HomePage from './components/HomePage';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import WaitingRoom from './views/WaitingRoom';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-  };
 
   return (
-    <div className="app">
-      <HomePage 
-        isAuthenticated={isAuthenticated} 
-        onLogin={handleLogin} 
-        onLogout={handleLogout} 
-      />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage  />} />
+        <Route path="/waiting-room/:roomID" element={<WaitingRoom />} />
+      </Routes>
+    </Router>
   );
 }
 
