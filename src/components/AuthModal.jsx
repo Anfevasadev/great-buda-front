@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import InputField from './InputField';
+import { validateForm } from '../utils/validation';
+import { registerUser } from '../api/api';
 import './AuthModal.css';
 
-function AuthModal ({ isOpen, onClose }) {
+function AuthModal({ isOpen, onClose }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
@@ -13,63 +16,59 @@ function AuthModal ({ isOpen, onClose }) {
   });
   const [errors, setErrors] = useState({});
   const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [serverErrors, setServerErrors] = useState([]);
 
   useEffect(() => {
     if (isFormSubmitted) {
-      validateForm();
+      setErrors(validateForm(formData, isLogin));
     }
   }, [formData, isLogin, isFormSubmitted]);
-
-  const validateForm = () => {
-    const newErrors= {};
-    
-    if (!isLogin) {
-      if (!formData.name.trim()) newErrors.name = 'El nombre es requerido';
-      
-      if (!formData.username.trim()) {
-        newErrors.username = 'El nombre de usuario es requerido';
-      } else if (!/^[a-zA-Z]+$/.test(formData.username)) {
-        newErrors.username = 'El nombre de usuario solo puede contener letras';
-      }
-      
-      if (!formData.age) {
-        newErrors.age = 'La edad es requerida';
-      } else if (parseInt(formData.age) < 18) {
-        newErrors.age = 'Debes ser mayor de 18 años';
-      }
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'El correo electrónico es requerido';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Ingresa un correo electrónico válido';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'La contraseña es requerida';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'La contraseña debe tener al menos 8 caracteres';
-    }
-
-    if (!isLogin && formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Las contraseñas no coinciden';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsFormSubmitted(true);
-    if (validateForm()) {
-      // Aquí se enviaría la información del formulario
-      console.log('Formulario enviado:', formData);
+    const newErrors = validateForm(formData, isLogin);
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length === 0) {
+      const { confirmPassword, ...dataToSend } = formData;
+      dataToSend.role = 'user';
+      setLoading(true); 
+      setServerErrors([]); 
+
+      try {
+        const data = await registerUser(dataToSend);
+        console.log('Registro exitoso:', data);
+        // Guardar el token en localStorage
+        localStorage.setItem('token', data.token);
+        // Limpiar el formulario
+        setFormData({
+          name: '',
+          username: '',
+          age: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+        });
+        onClose();
+
+      } catch (error) {
+        if (error.response && error.response.data && error.response.data.error && error.response.data.error.errors ) {
+          setServerErrors(error.response.data.error.errors.map(err => err.message || err.msg));
+        } else if (error.response?.data?.errors?.length > 0) {
+          setServerErrors(error.response.data.errors.map(err => err.message || err.msg));
+        } 
+        else {
+          setServerErrors(['Upss, algo salió mal, inténtalo más tarde']);
+        }
+      } finally {
+        setLoading(false); 
+      }
     }
   };
 
@@ -83,91 +82,80 @@ function AuthModal ({ isOpen, onClose }) {
         <form className="auth-modal__form" onSubmit={handleSubmit} noValidate>
           {!isLogin && (
             <>
-              <div className="auth-modal__input-group">
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Nombre"
-                  className="auth-modal__input"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  aria-label="Nombre"
-                  required
-                />
-                {isFormSubmitted && errors.name && <p className="auth-modal__error">{errors.name}</p>}
-              </div>
-              <div className="auth-modal__input-group">
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Nombre de usuario"
-                  className="auth-modal__input"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  aria-label="Nombre de usuario"
-                  required
-                />
-                {isFormSubmitted && errors.username && <p className="auth-modal__error">{errors.username}</p>}
-              </div>
-              <div className="auth-modal__input-group">
-                <input
-                  type="number"
-                  name="age"
-                  placeholder="Edad"
-                  className="auth-modal__input"
-                  value={formData.age}
-                  onChange={handleInputChange}
-                  aria-label="Edad"
-                  min="18"
-                  required
-                />
-                {isFormSubmitted && errors.age && <p className="auth-modal__error">{errors.age}</p>}
-              </div>
-            </>
-          )}
-          <div className="auth-modal__input-group">
-            <input
-              type="email"
-              name="email"
-              placeholder="Correo electrónico"
-              className="auth-modal__input"
-              value={formData.email}
-              onChange={handleInputChange}
-              aria-label="Correo electrónico"
-              required
-            />
-            {isFormSubmitted && errors.email && <p className="auth-modal__error">{errors.email}</p>}
-          </div>
-          <div className="auth-modal__input-group">
-            <input
-              type="password"
-              name="password"
-              placeholder="Contraseña"
-              className="auth-modal__input"
-              value={formData.password}
-              onChange={handleInputChange}
-              aria-label="Contraseña"
-              required
-            />
-            {isFormSubmitted && errors.password && <p className="auth-modal__error">{errors.password}</p>}
-          </div>
-          {!isLogin && (
-            <div className="auth-modal__input-group">
-              <input
-                type="password"
-                name="confirmPassword"
-                placeholder="Confirmar contraseña"
-                className="auth-modal__input"
-                value={formData.confirmPassword}
+              <InputField
+                type="text"
+                name="name"
+                placeholder="Nombre"
+                value={formData.name}
                 onChange={handleInputChange}
-                aria-label="Confirmar contraseña"
+                error={isFormSubmitted && errors.name}
+                ariaLabel="Nombre"
                 required
               />
-              {isFormSubmitted && errors.confirmPassword && <p className="auth-modal__error">{errors.confirmPassword}</p>}
+              <InputField
+                type="text"
+                name="username"
+                placeholder="Nombre de usuario"
+                value={formData.username}
+                onChange={handleInputChange}
+                error={isFormSubmitted && errors.username}
+                ariaLabel="Nombre de usuario"
+                required
+              />
+              <InputField
+                type="number"
+                name="age"
+                placeholder="Edad"
+                value={formData.age}
+                onChange={handleInputChange}
+                error={isFormSubmitted && errors.age}
+                ariaLabel="Edad"
+                min="18"
+                required
+              />
+            </>
+          )}
+          <InputField
+            type="email"
+            name="email"
+            placeholder="Correo electrónico"
+            value={formData.email}
+            onChange={handleInputChange}
+            error={isFormSubmitted && errors.email}
+            ariaLabel="Correo electrónico"
+            required
+          />
+          <InputField
+            type="password"
+            name="password"
+            placeholder="Contraseña"
+            value={formData.password}
+            onChange={handleInputChange}
+            error={isFormSubmitted && errors.password}
+            ariaLabel="Contraseña"
+            required
+          />
+          {!isLogin && (
+            <InputField
+              type="password"
+              name="confirmPassword"
+              placeholder="Confirmar contraseña"
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              error={isFormSubmitted && errors.confirmPassword}
+              ariaLabel="Confirmar contraseña"
+              required
+            />
+          )}
+          {serverErrors.length > 0 && (
+            <div className="auth-modal__server-errors">
+              {serverErrors.map((error, index) => (
+                <p key={index} className="auth-modal__error">{error}</p>
+              ))}
             </div>
           )}
-          <button type="submit" className="auth-modal__submit">
-            {isLogin ? 'Iniciar sesión' : 'Registrarse'}
+          <button type="submit" className="auth-modal__submit" disabled={loading}>
+            {loading ? 'Registrando...' : (isLogin ? 'Iniciar sesión' : 'Registrarse')}
           </button>
         </form>
         <p className="auth-modal__switch">
