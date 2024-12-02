@@ -1,22 +1,25 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { initializeSocket } from '../services/socketManager';
 
 const GameContext = createContext();
 
 export const GameProvider = ({ children }) => {
-  const [gameId, setGameId] = useState(null);
-  const [playersCount, setPlayersCount] = useState(0);
+  const [gameState, setGameState] = useState({
+    gameId: null,
+    playersCount: 0,
+    waitingTime: 0,
+    isRoomClosed: false
+  });
 
-  const joinGameRoom = (roomId) => {
-    setGameId(roomId);
-    return initializeSocket(setPlayersCount);
+  const joinGameRoom = () => {
+    return initializeSocket(setGameState);
   };
+  
 
   return (
-    <GameContext.Provider value={{ gameId, playersCount, joinGameRoom }}>
+    <GameContext.Provider value={{ gameState, setGameState, joinGameRoom }}>
       {children}
     </GameContext.Provider>
   );
 };
-
 export const useGame = () => useContext(GameContext);
