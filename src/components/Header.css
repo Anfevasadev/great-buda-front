@@ -36,3 +36,8 @@
     transform: translateY(1px);
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
 }
+.header__user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }

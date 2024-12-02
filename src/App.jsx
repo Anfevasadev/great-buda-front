@@ -1,11 +1,27 @@
-import './App.css'
-import HomePage from './components/HomePage'
+import { useState } from 'react';
+import './App.css';
+import HomePage from './components/HomePage';
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+  };
 
   return (
-    <HomePage />  
-  )
+    <div className="app">
+      <HomePage 
+        isAuthenticated={isAuthenticated} 
+        onLogin={handleLogin} 
+        onLogout={handleLogout} 
+      />
+    </div>
+  );
 }
 
-export default App
+export default App;
