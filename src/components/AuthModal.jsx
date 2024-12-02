@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import InputField from './InputField';
 import { validateForm } from '../utils/validation';
-import { registerUser, loginUser } from '../api/api';
-import { useAuth } from '../context/AuthContext';
+import { useAuthService } from '../services/authService';
 import './AuthModal.css';
 
 function AuthModal({ isOpen, onClose }) {
-  const { login } = useAuth();
+  const { handleRegister, handleLogin } = useAuthService();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
@@ -43,25 +42,11 @@ function AuthModal({ isOpen, onClose }) {
       setServerErrors([]);
 
       try {
-        let data;
         if (isLogin) {
-          data = await loginUser({ email: formData.email, password: formData.password });
+          await handleLogin(formData, onClose, setFormData);
         } else {
-          const { confirmPassword, ...dataToSend } = formData;
-          dataToSend.role = 'user';
-          data = await registerUser(dataToSend);
+          await handleRegister(formData, onClose, setFormData);
         }
-        console.log('Autenticación exitosa:', data);
-        login(data.user, data.token); 
-        setFormData({
-          name: '',
-          username: '',
-          age: '',
-          email: '',
-          password: '',
-          confirmPassword: '',
-        });
-        onClose();
       } catch (error) {
         if (error.response && error.response.data && error.response.data.error && error.response.data.error.errors) {
           setServerErrors(error.response.data.error.errors.map(err => err.message || err.msg));
