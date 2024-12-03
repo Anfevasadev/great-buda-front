@@ -8,13 +8,14 @@ export const GameProvider = ({ children }) => {
     gameId: null,
     playersCount: 0,
     waitingTime: 0,
-    isRoomClosed: false
+    isRoomClosed: false,
+    ballots: [],
   });
 
   const joinGameRoom = () => {
     return initializeSocket(setGameState);
   };
-  
+
 
   return (
     <GameContext.Provider value={{ gameState, setGameState, joinGameRoom }}>

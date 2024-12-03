@@ -33,7 +33,7 @@ export const initializeSocket = (setGameState) => {
         }));
     });
 
-    socket.on('gameFinished',({message, winner_id}) => {
+    socket.on('gameFinished', ({ message, winner_id }) => {
         // console.log('gameFinished', message, winner_id);    
         setGameState(prevState => ({
             ...prevState,
@@ -42,6 +42,19 @@ export const initializeSocket = (setGameState) => {
             message: message
         }));
 
+    });
+
+    socket.on('newBallot', (ballot) => {
+        console.log('newBallot', ballot.number);
+        setGameState(prevState => {
+            if (!prevState.ballots.some(b => b.number === ballot.number)) {
+                return {
+                    ...prevState,
+                    ballots: [...prevState.ballots, ballot]
+                };
+            }
+            return prevState;
+        });
     });
 
     return () => {

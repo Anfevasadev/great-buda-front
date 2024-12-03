@@ -5,12 +5,16 @@ import './Game.css';
 import { useGame } from '../context/GameContext';
 import socket from '../services/socketService';
 import { useNavigate, useParams } from 'react-router-dom';
+import Ballots from '../components/Ballots';
 
 const Game = () => {
   const { gameState, setGameState } = useGame();
   const gameId = useParams().gameId;
   const navigate = useNavigate();
   const [showWinnerModal, setShowWinnerModal] = useState(false);
+
+  console.log('gameState', gameState);
+
 
   useEffect(() => {
     if (!gameState.gameId) {
@@ -37,7 +41,8 @@ const Game = () => {
         ...prevState,
         gameFinished: false,
         winner_id: null,
-        message: null
+        message: null,
+        ballots: []
       }));
     };
   }, []);
@@ -46,7 +51,7 @@ const Game = () => {
     if (gameState.gameFinished && gameState.winner_id === localStorage.getItem('userId')) {
       setShowWinnerModal(true);
     }
-  },[gameState.gameFinished]);
+  }, [gameState.gameFinished]);
 
   const handleGoHome = () => {
     navigate('/');
@@ -56,6 +61,7 @@ const Game = () => {
     <div className="game">
       <BingoCard />
       {showWinnerModal && <WinnerModal message={gameState.message} onGoHome={handleGoHome} />}
+      <Ballots ballots={gameState.ballots} />
     </div>
   );
 };
