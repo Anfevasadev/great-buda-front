@@ -17,17 +17,17 @@ export const AuthProvider = ({ children }) => {
           Authorization: storedToken
         }
       })
-      .then(response => {
-        setUser(response.data);
-        setIsAuthenticated(true);
-      })
-      .catch(error => {
-        console.error('Error fetching user data:', error);
-        setIsAuthenticated(false);
-        setUser(null);
-        setToken(null);
-        localStorage.removeItem('token');
-      });
+        .then(response => {
+          setUser(response.data);
+          setIsAuthenticated(true);
+        })
+        .catch(error => {
+          console.error('Error fetching user data:', error);
+          setIsAuthenticated(false);
+          setUser(null);
+          setToken(null);
+          localStorage.removeItem('token');
+        });
     }
   }, []);
 
@@ -36,8 +36,8 @@ export const AuthProvider = ({ children }) => {
     setUser(userData);
     setToken(token);
     localStorage.setItem('token', token);
-    localStorage.setItem('userId', data.user.id);
-    localStorage.setItem('username', data.user.username);
+    localStorage.setItem('userId', userData.id);
+    localStorage.setItem('username', userData.username);
   };
 
   const logout = () => {
@@ -45,8 +45,8 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
     setToken(null);
     localStorage.removeItem('token');
-    localStorage.setItem('userId');
-      localStorage.setItem('username');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('username');
   };
 
   return (
