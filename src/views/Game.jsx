@@ -12,9 +12,6 @@ const Game = () => {
   const navigate = useNavigate();
   const [showWinnerModal, setShowWinnerModal] = useState(false);
 
-  console.log(gameId);
-  
-
   useEffect(() => {
     if (!gameState.gameId) {
       navigate('/');

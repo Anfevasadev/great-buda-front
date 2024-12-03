@@ -34,7 +34,7 @@ export const initializeSocket = (setGameState) => {
     });
 
     socket.on('gameFinished',({message, winner_id}) => {
-        console.log('gameFinished', message, winner_id);    
+        // console.log('gameFinished', message, winner_id);    
         setGameState(prevState => ({
             ...prevState,
             gameFinished: true,
@@ -50,4 +50,4 @@ export const initializeSocket = (setGameState) => {
         socket.off('closeRoom');
         socket.off('bingoCard');
     };
-};
+};  
