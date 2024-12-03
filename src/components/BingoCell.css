@@ -26,5 +26,5 @@
     align-items: center;
     position: relative;
     z-index: 500;
-    
+    transition: background-color 0.3s ease, filter 0.3s ease; /* Añadir transición */
   }
