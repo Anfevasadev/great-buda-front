@@ -23,6 +23,10 @@ function WaitingRoom() {
     }
   }, []);
 
+  socket.on('startGame', () => {
+    navigate('/game');
+  });
+
 
   const handleGoHome = () => {
     setGameState({

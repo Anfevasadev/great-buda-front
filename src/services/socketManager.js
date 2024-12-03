@@ -22,12 +22,12 @@ export const initializeSocket = (setGameState) => {
         setGameState(prev => ({ ...prev, isRoomClosed: true }));
     });
 
-    socket.on('bingoCard', ({ playerId, bingoCard }) => {
+    socket.on('bingoCard', ({ userId, bingoCard }) => {
         setGameState(prevState => ({
             ...prevState,
             bingoCards: {
                 ...prevState.bingoCards,
-                [playerId]: bingoCard
+                [userId]: bingoCard
             }
         }));
     });
