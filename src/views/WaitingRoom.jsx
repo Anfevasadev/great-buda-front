@@ -10,6 +10,7 @@ function WaitingRoom() {
   const { token } = useAuth();
   const { roomID } = useParams();
   const { gameState, setGameState, joinGameRoom } = useGame();
+  
 
   useEffect(() => {
     if (token && roomID) {
@@ -24,7 +25,7 @@ function WaitingRoom() {
   }, []);
 
   socket.on('startGame', () => {
-    navigate('/game');
+    navigate('/game/' + roomID);
   });
 
 
