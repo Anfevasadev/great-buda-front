@@ -26,6 +26,15 @@ function WaitingRoom() {
 
   socket.on('startGame', () => {
     navigate('/game/' + roomID);
+    setGameState(prevState => ({
+      ...prevState,
+      gameFinished: false,
+      winner_id: null,
+      message: null,
+      ballots: [],
+      disqualified: false,
+      disqualificationMessage: null
+    }));
   });
 
 

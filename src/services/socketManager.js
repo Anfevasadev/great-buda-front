@@ -57,6 +57,35 @@ export const initializeSocket = (setGameState) => {
         });
     });
 
+    socket.on('falseBingo', ({ message }) => {
+        console.log('falseBingo', message);
+        setGameState(prevState => ({
+            ...prevState,
+            disqualified: true,
+            disqualificationMessage: message
+        }));
+    });
+
+    socket.on('bingoWinner', ({ message, winner_id }) => {
+        console.log('bingoWinner', message, winner_id);
+        const localUserId = localStorage.getItem('userId');
+        if (winner_id === localUserId) {
+            setGameState(prevState => ({
+                ...prevState,
+                gameFinished: true,
+                winner_id: winner_id,
+                message: message
+            }));
+        } else {
+            setGameState(prevState => ({
+                ...prevState,
+                gameFinished: true,
+                winner_id: null,
+                message: 'Alguien más ha ganado el juego.'
+            }));
+        }
+    });
+
     return () => {
         socket.off('updatePlayers');
         socket.off('waitingTime');
