@@ -15,9 +15,7 @@ const Game = () => {
   const [showWinnerModal, setShowWinnerModal] = useState(false);
   const [showDisqualificationModal, setShowDisqualificationModal] = useState(false);
 
-
   console.log('gameState', gameState);
-
 
   useEffect(() => {
     if (!gameState.gameId) {
@@ -26,6 +24,9 @@ const Game = () => {
 
     if (gameState.gameFinished && gameState.winner_id === localStorage.getItem('userId')) {
       setShowWinnerModal(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 5000);
     }
 
     const handleUnload = () => {
@@ -60,9 +61,15 @@ const Game = () => {
 
     if (gameState.gameFinished) {
       setShowWinnerModal(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 5000);
     }
     if (gameState.disqualified) {
       setShowDisqualificationModal(true);
+      setTimeout(() => {
+        navigate('/');
+      }, 5000);
     }
   }, [gameState]);
 
@@ -75,7 +82,7 @@ const Game = () => {
       <BingoCard />
       {showWinnerModal && (
         <Modal
-          title= {`Fin del juego`}
+          title={`Fin del juego`}
           message={gameState.message}
           onGoHome={handleGoHome}
         />
